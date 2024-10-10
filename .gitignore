@@ -160,3 +160,16 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Ignore MongoDB data directory
+/data/
+
+# Ignore JSON data file (if not required)
+/fngu_data.json
+
+# Ignore system library files
+/libssl1.1_1.1f1-ubuntu
+
+# Ignore log files
+/mongodb.log
+
