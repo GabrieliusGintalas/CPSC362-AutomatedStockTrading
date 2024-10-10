@@ -168,8 +168,11 @@ cython_debug/
 /fngu_data.json
 
 # Ignore system library files
-/libssl1.1_1.1f1-ubuntu
+/libssl1.1_1.1.1f-1ubuntu2_amd64
 
 # Ignore log files
 /mongodb.log
+
+# Ignore log files
+/mongodb.log.2024-10-10T06-46-49
 
