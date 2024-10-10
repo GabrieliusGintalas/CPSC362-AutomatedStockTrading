@@ -166,6 +166,7 @@ cython_debug/
 
 # Ignore JSON data file (if not required)
 /fngu_data.json
+/fngd_data.json
 
 # Ignore system library files
 /libssl1.1_1.1.1f-1ubuntu2_amd64
