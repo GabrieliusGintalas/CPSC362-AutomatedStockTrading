@@ -1,10 +1,5 @@
 import yfinance as yf
 import json
-from pymongo import MongoClient
-
-client = MongoClient("mongodb://localhost:27017/")
-db = client['market_data']
-collection = db['fngu_fngd_data']
 
 def fetch_market_data(symbol, start_date, end_date):
     """Fetch historical data for a given symbol and filter required fields."""
@@ -22,11 +17,3 @@ def save_to_json(data, filename):
     """Save data to a JSON file."""
     with open(filename, 'w') as json_file:
         json.dump(data, json_file, indent=4, default=str)
-
-def insert_into_mongodb(data):
-    """Insert the data into MongoDB."""
-    if data:
-        collection.insert_many(data)
-        print(f"Data successfully inserted into MongoDB.")
-    else:
-        print("No data to insert into MongoDB.")
