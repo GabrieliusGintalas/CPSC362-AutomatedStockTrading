@@ -1,7 +1,6 @@
-# Update the historical_graph.py with date formatting:
 import matplotlib.pyplot as plt
-import pandas as pd  
-
+import pandas as pd
+import time
 
 def plot_historical_graph(data, symbol, start_date, end_date):
     """Plot historical graph from start_date to end_date with MM/DD/YYYY format."""
@@ -20,4 +19,6 @@ def plot_historical_graph(data, symbol, start_date, end_date):
     plt.xticks(rotation=45)
     plt.legend()
     plt.tight_layout()
+
+    # Show the plot without blocking
     plt.show()
