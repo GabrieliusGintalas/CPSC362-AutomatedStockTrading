@@ -1,7 +1,4 @@
 import pandas as pd
-import numpy as np
-from datetime import datetime
-import yfinance as yf
 import csv
 
 # Constants
@@ -13,69 +10,76 @@ def calculate_sma(data, window):
     """Calculate the Simple Moving Average (SMA) for a given window size."""
     return data['Close'].rolling(window=window).mean()
 
+
 def backtest_sma(data, short_window, long_window):
-    """Backtest the SMA cross-over strategy."""
-    data['SMA_short'] = calculate_sma(data, short_window)
-    data['SMA_long'] = calculate_sma(data, long_window)
-    
-    # Initialize variables for tracking trades
+    """Backtest an SMA crossover strategy."""
     balance = INITIAL_BALANCE
     shares = 0
     trade_log = []
-    
-    # Iterate over data to simulate trades
-    for i in range(1, len(data)):
-        if data['SMA_short'].iloc[i] > data['SMA_long'].iloc[i] and data['SMA_short'].iloc[i-1] <= data['SMA_long'].iloc[i-1]:
-            # Buy signal
-            price = data['Close'].iloc[i]
-            shares_to_buy = balance // price
-            balance -= shares_to_buy * price
-            shares += shares_to_buy
-            transaction = {
-                "date": data.index[i].strftime('%Y-%m-%d'),
-                "action": "BUY",
-                "price": price,
-                "shares": shares_to_buy,
-                "transaction_amount": -shares_to_buy * price,
-                "balance": balance,
-                "gain/loss": None  # Gain/loss is not calculated at buying
-            }
-            trade_log.append(transaction)
-        
-        elif data['SMA_short'].iloc[i] < data['SMA_long'].iloc[i] and data['SMA_short'].iloc[i-1] >= data['SMA_long'].iloc[i-1]:
-            # Sell signal
-            if shares > 0:
-                price = data['Close'].iloc[i]
-                balance += shares * price
-                gain_loss = shares * (price - transaction['price'])  # Assuming last buy
-                transaction = {
-                    "date": data.index[i].strftime('%Y-%m-%d'),
-                    "action": "SELL",
-                    "price": price,
-                    "shares": -shares,
-                    "transaction_amount": shares * price,
-                    "balance": balance,
-                    "gain/loss": gain_loss
-                }
-                shares = 0  # Reset shares after selling
-                trade_log.append(transaction)
-    
-    # Sell any remaining shares at the last available price
+
+    # Only consider rows with valid Close prices (to skip non-trading days)
+    data = data.dropna(subset=['Close'])
+
+    # Ensure that at least 200 trading days have passed before we begin executing trades
+    for i in range(long_window, len(data)):
+        # Calculate SMAs for the current day
+        short_sma = data['Close'].iloc[i - short_window:i].mean()
+        long_sma = data['Close'].iloc[i - long_window:i].mean()
+        price = data['Close'].iloc[i]
+
+        # Buy signal: short SMA crosses above long SMA
+        if short_sma > long_sma and shares == 0:
+            shares = balance // price  # Buy as many shares as possible
+            transaction_amount = shares * price
+            balance -= transaction_amount
+            trade_log.append({
+                'date': data.index[i],
+                'action': 'BUY',
+                'price': price,
+                'shares': shares,
+                'transaction_amount': transaction_amount,
+                'gain/loss': None,
+                'balance': balance
+            })
+            print(f"BUY on {data.index[i]}: Short SMA = {short_sma}, Long SMA = {long_sma}, Price = {price}")
+
+        # Sell signal: short SMA crosses below long SMA
+        elif short_sma < long_sma and shares > 0:
+            transaction_amount = shares * price
+            gain_loss = transaction_amount - (shares * trade_log[-1]['price'])
+            balance += transaction_amount
+            trade_log.append({
+                'date': data.index[i],
+                'action': 'SELL',
+                'price': price,
+                'shares': shares,
+                'transaction_amount': transaction_amount,
+                'gain/loss': gain_loss,
+                'balance': balance
+            })
+            shares = 0  # Reset shares after selling
+            print(f"SELL on {data.index[i]}: Short SMA = {short_sma}, Long SMA = {long_sma}, Price = {price}")
+
+    # If holding shares at the end of the period, sell them at the last available price
     if shares > 0:
-        last_price = data['Close'].iloc[-1]
-        balance += shares * last_price
+        price = data['Close'].iloc[-1]
+        transaction_amount = shares * price
+        gain_loss = transaction_amount - (shares * trade_log[-1]['price'])
+        balance += transaction_amount
         trade_log.append({
-            "date": data.index[-1].strftime('%Y-%m-%d'),
-            "action": "SELL",
-            "price": last_price,
-            "shares": -shares,
-            "transaction_amount": shares * last_price,
-            "balance": balance,
-            "gain/loss": shares * (last_price - data['Close'].iloc[-1])
+            'date': data.index[-1],
+            'action': 'SELL',
+            'price': price,
+            'shares': shares,
+            'transaction_amount': transaction_amount,
+            'gain/loss': gain_loss,
+            'balance': balance
         })
-    
-    # Return final balance and trade log
+        print(f"Final SELL on {data.index[-1]}: Short SMA = {short_sma}, Long SMA = {long_sma}, Price = {price}")
+
     return balance, trade_log
+
+
 
 def save_trades_to_csv(trade_log, final_balance):
     """Save the trade log to a CSV file, including a summary."""
@@ -95,3 +99,4 @@ def save_trades_to_csv(trade_log, final_balance):
             "gain/loss": sum(trade['gain/loss'] for trade in trade_log if trade['gain/loss'] is not None),
             "balance": final_balance
         })
+        

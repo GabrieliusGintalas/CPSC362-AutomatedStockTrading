@@ -4,6 +4,12 @@ import json
 def fetch_market_data(symbol, start_date, end_date):
     """Fetch historical data for a given symbol and filter required fields."""
     ticker = yf.Ticker(symbol)
+
+    #stock_info = ticker.info
+    #company_name = stock_info.get("longName", "N/A")  # Fetches the company name if available
+    
+    #print(f"Symbol '{symbol}' refers to: {company_name}")
+
     data = ticker.history(start=start_date, end=end_date)
 
     # Select only the required columns: Date, Open, High, Low, Close, Volume
