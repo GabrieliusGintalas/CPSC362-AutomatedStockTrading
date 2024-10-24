@@ -17,17 +17,16 @@ def backtest_sma(data, short_window, long_window):
     shares = 0
     trade_log = []
 
-    # Only consider rows with valid Close prices (to skip non-trading days)
     data = data.dropna(subset=['Close'])
+    small_windows = calculate_sma(data, short_window)
+    long_windows = calculate_sma(data, long_window)
 
-    # Ensure that at least 200 trading days have passed before we begin executing trades
     for i in range(long_window, len(data)):
         # Calculate SMAs for the current day
-        short_sma = data['Close'].iloc[i - short_window:i].mean()
-        long_sma = data['Close'].iloc[i - long_window:i].mean()
+        short_sma = small_windows.iloc[i]
+        long_sma = long_windows.iloc[i]
         price = data['Close'].iloc[i]
 
-        # Buy signal: short SMA crosses above long SMA
         if short_sma > long_sma and shares == 0:
             shares = balance // price  # Buy as many shares as possible
             transaction_amount = shares * price
@@ -43,7 +42,6 @@ def backtest_sma(data, short_window, long_window):
             })
             print(f"BUY on {data.index[i]}: Short SMA = {short_sma}, Long SMA = {long_sma}, Price = {price}")
 
-        # Sell signal: short SMA crosses below long SMA
         elif short_sma < long_sma and shares > 0:
             transaction_amount = shares * price
             gain_loss = transaction_amount - (shares * trade_log[-1]['price'])
@@ -60,7 +58,6 @@ def backtest_sma(data, short_window, long_window):
             shares = 0  # Reset shares after selling
             print(f"SELL on {data.index[i]}: Short SMA = {short_sma}, Long SMA = {long_sma}, Price = {price}")
 
-    # If holding shares at the end of the period, sell them at the last available price
     if shares > 0:
         price = data['Close'].iloc[-1]
         transaction_amount = shares * price
@@ -82,7 +79,6 @@ def backtest_sma(data, short_window, long_window):
 
 
 def save_trades_to_csv(trade_log, final_balance):
-    """Save the trade log to a CSV file, including a summary."""
     filename = "sma_crossover_trades.csv"
     with open(filename, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=[
