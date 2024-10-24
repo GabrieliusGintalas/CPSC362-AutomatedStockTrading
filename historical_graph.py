@@ -21,4 +21,8 @@ def plot_historical_graph(data, symbol, start_date, end_date):
     plt.tight_layout()
 
     # Show the plot without blocking
-    plt.show()
+    #plt.show()
+
+    plt.savefig(f'{symbol}_historical_graph.png')
+
+    print(f"Graph saved as {symbol}_historical_graph.png")

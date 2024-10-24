@@ -15,7 +15,7 @@ source myenv/bin/activate
 # Install required packages if not already installed
 if ! python3 -c "import yfinance, matplotlib, pandas" &> /dev/null; then
     echo "Installing required packages..."
-    pip install yfinance matplotlib pymongo pandas
+    pip install yfinance matplotlib pymongo pandas numpy
 else
     echo "Required packages are already installed."
 fi
