@@ -26,5 +26,3 @@ def get_user_date():
         except ValueError:
             # If parsing fails, inform the user and ask again
             print("Invalid date format. Please enter the date in the format MM/DD/YYYY.")
-
-

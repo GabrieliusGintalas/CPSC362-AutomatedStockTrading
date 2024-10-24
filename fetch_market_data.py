@@ -1,25 +1,23 @@
 import yfinance as yf
+import pandas as pd
 import json
 
-def fetch_market_data(symbol, start_date, end_date):
-    """Fetch historical data for a given symbol and filter required fields."""
-    ticker = yf.Ticker(symbol)
-
-    #stock_info = ticker.info
-    #company_name = stock_info.get("longName", "N/A")  # Fetches the company name if available
-    
-    #print(f"Symbol '{symbol}' refers to: {company_name}")
-
-    data = ticker.history(start=start_date, end=end_date)
-
-    # Select only the required columns: Date, Open, High, Low, Close, Volume
-    filtered_data = data[['Open', 'High', 'Low', 'Close', 'Volume']].reset_index()
-
-    # Convert the filtered data to a dictionary format for JSON serialization
-    data_dict = filtered_data.to_dict(orient="records")
-    return data_dict
-
-def save_to_json(data, filename):
-    """Save data to a JSON file."""
-    with open(filename, 'w') as json_file:
-        json.dump(data, json_file, indent=4, default=str)
+def fetch_market_data(symbol, start_date, end_date, json_filename):
+    """
+    Fetches market data for the given symbol and date range, then saves it to a JSON file.
+    """
+    try:
+        data = yf.download(symbol, start=start_date, end=end_date, progress=False)
+        if data.empty:
+            print("No data fetched.")
+            return False
+        data.reset_index(inplace=True)
+        data['Date'] = data['Date'].dt.strftime('%Y-%m-%d')
+        data_list = data.to_dict(orient='records')
+        with open(json_filename, 'w') as json_file:
+            json.dump(data_list, json_file, indent=4)
+        print(f"Data for {symbol} saved to {json_filename}.")
+        return True
+    except Exception as e:
+        print(f"An error occurred while fetching data: {e}")
+        return False
