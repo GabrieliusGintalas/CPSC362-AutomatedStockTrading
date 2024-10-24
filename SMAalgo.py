@@ -7,6 +7,8 @@ import csv
 def calculate_signals(data, short_window=50, long_window=200):
     """
     Calculate trading signals with precise crossover detection.
+    Crossing up (short crosses above long) = BUY
+    Crossing down (short crosses below long) = SELL
     """
     # Calculate SMAs
     data = data.copy()
@@ -15,13 +17,21 @@ def calculate_signals(data, short_window=50, long_window=200):
     
     # Calculate difference between SMAs
     data['SMA_diff'] = data['SMA50'] - data['SMA200']
+    data['SMA_diff_prev'] = data['SMA_diff'].shift(1)
     
     # Generate signals
     data['signal'] = 0
+    # Signal is 1 when short is above long
     data['signal'] = np.where(data['SMA_diff'] > 0, 1, 0)
     
-    # Calculate positions
-    data['position'] = data['signal'].diff()
+    # Calculate positions based on crossovers
+    data['position'] = 0
+    
+    # Buy when crossing up (previous diff <= 0 and current diff > 0)
+    data.loc[(data['SMA_diff_prev'] <= 0) & (data['SMA_diff'] > 0), 'position'] = 1
+    
+    # Sell when crossing down (previous diff > 0 and current diff <= 0)
+    data.loc[(data['SMA_diff_prev'] > 0) & (data['SMA_diff'] <= 0), 'position'] = -1
     
     return data
 
@@ -50,15 +60,28 @@ def backtest_sma(data, short_window=50, long_window=200):
         date = signals.index[i]
         price = signals['Close'].iloc[i]
         
+        # Update holdings value for current price
+        portfolio.loc[date, 'holdings'] = position * price
+        
+        # If this isn't the first day, carry forward cash from previous day
+        if i > 0:
+            portfolio.loc[date, 'cash'] = portfolio.iloc[i-1]['cash']
+        
+        # Calculate current total value
+        portfolio.loc[date, 'total'] = portfolio.loc[date, 'cash'] + portfolio.loc[date, 'holdings']
+        
         if signals['position'].iloc[i] != 0:
-            if signals['position'].iloc[i] == 1:  # Buy signal
-                if position == 0:  # Only buy if we don't have a position
+            # Buy signal
+            if signals['position'].iloc[i] == 1:  
+                if position == 0:
                     shares = shares_per_trade
                     cost = shares * price
                     position = shares
                     
+                    # Update portfolio for buy
                     portfolio.loc[date, 'holdings'] = shares * price
                     portfolio.loc[date, 'cash'] -= cost
+                    portfolio.loc[date, 'total'] = portfolio.loc[date, 'cash'] + portfolio.loc[date, 'holdings']
                     
                     trade_log.append({
                         'date': date.strftime('%Y-%m-%d'),
@@ -68,16 +91,19 @@ def backtest_sma(data, short_window=50, long_window=200):
                         'shares': shares,
                         'amount': -cost,
                         'gain_loss': 0,
-                        'balance': portfolio.loc[date, 'cash'] + portfolio.loc[date, 'holdings']
+                        'balance': portfolio.loc[date, 'total']
                     })
             
-            elif signals['position'].iloc[i] == -1:  # Sell signal
-                if position > 0:  # Only sell if we have a position
+            # Sell signal
+            elif signals['position'].iloc[i] == -1:  
+                if position > 0:
                     proceeds = position * price
                     gain_loss = proceeds - (position * signals['Close'].iloc[i-1])
                     
+                    # Update portfolio for sell
                     portfolio.loc[date, 'holdings'] = 0
                     portfolio.loc[date, 'cash'] += proceeds
+                    portfolio.loc[date, 'total'] = portfolio.loc[date, 'cash'] + portfolio.loc[date, 'holdings']
                     position = 0
                     
                     trade_log.append({
@@ -88,12 +114,8 @@ def backtest_sma(data, short_window=50, long_window=200):
                         'shares': -shares_per_trade,
                         'amount': proceeds,
                         'gain_loss': gain_loss,
-                        'balance': portfolio.loc[date, 'cash'] + portfolio.loc[date, 'holdings']
+                        'balance': portfolio.loc[date, 'total']
                     })
-        
-        # Update portfolio value for days without trades
-        portfolio.loc[date, 'holdings'] = position * signals['Close'].iloc[i]
-        portfolio.loc[date, 'total'] = portfolio.loc[date, 'cash'] + portfolio.loc[date, 'holdings']
     
     final_balance = portfolio['total'].iloc[-1]
     return final_balance, trade_log, signals
