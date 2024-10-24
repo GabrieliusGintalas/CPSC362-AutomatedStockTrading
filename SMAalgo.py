@@ -98,12 +98,37 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
 
     return balance, trade_log
 
-def save_trades_to_csv(trade_log, final_balance):
+def save_trades_to_csv(trade_log, final_balance, data, symbol):
     filename = "sma_crossover_trades.csv"
+    total_gain_loss = sum(trade['gain/loss'] for trade in trade_log if trade['gain/loss'] is not None)
+    start_date = data.index[0]
+    end_date = data.index[-1]
+    total_days = (end_date - start_date).days
+    total_years = total_days / 365.25
+    annual_return = (final_balance / INITIAL_BALANCE) ** (1 / total_years) - 1 if total_years > 0 else 0
+    total_return = (final_balance / INITIAL_BALANCE - 1) * 100
+
     with open(filename, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=[
-            'date', 'action', 'price', 'shares', 'transaction_amount', 'gain/loss', 'balance'
+            'date', 'symbol', 'action', 'price', 'shares', 'transaction_amount', 'gain/loss', 'balance'
         ])
         writer.writeheader()
+
+        # Record all the trades
+        for trade in trade_log:
+            writer.writerow({
+                'date': trade['date'],
+                'symbol': symbol,
+                'action': trade['action'],
+                'price': trade['price'],
+                'shares': trade['shares'],
+                'transaction_amount': trade['transaction_amount'],
+                'gain/loss': trade['gain/loss'],
+                'balance': trade['balance']
+            })
+
+        summary_writer = csv.writer(file)
+        summary_writer.writerow([f"Gain/Loss for all trades: ${total_gain_loss:.2f} | Annual % Return: {annual_return * 100:.2f}% | Total % Return: {total_return:.2f}%"])
+
 
         

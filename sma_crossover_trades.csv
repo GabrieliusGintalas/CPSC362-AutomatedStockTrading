@@ -1,1 +1,4 @@
-date,action,price,shares,transaction_amount,gain/loss,balance
+date,symbol,action,price,shares,transaction_amount,gain/loss,balance
+2023-03-21 00:00:00-04:00,FNGU,BUY,90.33000183105469,1107.0,99995.31202697754,,4.6879730224609375
+2024-10-22 00:00:00-04:00,FNGU,SELL,464.260009765625,1107.0,513935.8308105469,413940.51878356934,513940.51878356934
+Gain/Loss for all trades: $413940.52 | Annual % Return: 53.94% | Total % Return: 413.94%
