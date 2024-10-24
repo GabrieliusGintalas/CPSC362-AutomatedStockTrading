@@ -77,7 +77,6 @@ def backtest_sma(data, short_window, long_window):
     return balance, trade_log
 
 
-
 def save_trades_to_csv(trade_log, final_balance):
     filename = "sma_crossover_trades.csv"
     with open(filename, mode='w', newline='') as file:
@@ -95,4 +94,3 @@ def save_trades_to_csv(trade_log, final_balance):
             "gain/loss": sum(trade['gain/loss'] for trade in trade_log if trade['gain/loss'] is not None),
             "balance": final_balance
         })
-        

@@ -1,4 +1,4 @@
-#!/home/gabeg/CPSC362-AutomatedStockTrading/myenv/bin/python3
+#!c:\users\reece\onedrive\documents\cpsc362-automatedstocktrading\myenv\scripts\python.exe
 
 import datetime
 import os
