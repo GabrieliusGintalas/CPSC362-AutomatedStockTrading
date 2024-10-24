@@ -6,6 +6,7 @@ from datetime import datetime
 INITIAL_BALANCE = 100000
 STOP_LOSS_PERCENT = 0.05    # 5% stop-loss
 TAKE_PROFIT_PERCENT = 0.10  # 10% take-profit
+MIN_HOLDING_PERIOD = 10     # Minimum holding period in days
 
 def get_price_column(data):
     if 'Adj Close' in data.columns:
@@ -27,6 +28,7 @@ def backtest_sma_strategy(
     shares = 0
     trade_log = []
     buy_price = None
+    holding_period = 0
     price_col = get_price_column(data)
     data = data.dropna(subset=[price_col])
     data['Short_SMA'] = calculate_sma(data, short_window)
@@ -42,48 +44,11 @@ def backtest_sma_strategy(
         price = data[price_col].iloc[i]
         date = data.index[i]
 
-        # Buy signal: short SMA crosses above long SMA
-        if short_sma_prev <= long_sma_prev and short_sma_curr > long_sma_curr and shares == 0:
-            shares = int(balance / price)
-            if shares > 0:
-                transaction_amount = shares * price
-                balance -= transaction_amount
-                buy_price = price
-                trade_log.append({
-                    'date': date.strftime('%m/%d/%Y'),
-                    'symbol': symbol,
-                    'action': 'BUY',
-                    'price': price,
-                    'shares': shares,
-                    'transaction_amount': -transaction_amount,
-                    'gain/loss': None,
-                    'balance': balance
-                })
-                data.at[date, 'Signal'] = 1  # Mark buy signal
+        if shares > 0:
+            holding_period += 1
 
-        # Sell signal: short SMA crosses below long SMA
-        elif short_sma_prev >= long_sma_prev and short_sma_curr < long_sma_curr and shares > 0:
-            transaction_amount = shares * price
-            gain_loss = (price - buy_price) * shares
-            balance += transaction_amount
-            trade_log.append({
-                'date': date.strftime('%m/%d/%Y'),
-                'symbol': symbol,
-                'action': 'SELL',
-                'price': price,
-                'shares': shares,
-                'transaction_amount': transaction_amount,
-                'gain/loss': gain_loss,
-                'balance': balance
-            })
-            data.at[date, 'Signal'] = -1  # Mark sell signal
-            shares = 0
-            buy_price = None
-
-        # Check for stop-loss or take-profit
-        elif shares > 0:
+            # Check for stop-loss or take-profit
             price_change = (price - buy_price) / buy_price
-            # Take-profit
             if price_change >= TAKE_PROFIT_PERCENT:
                 transaction_amount = shares * price
                 gain_loss = (price - buy_price) * shares
@@ -98,10 +63,11 @@ def backtest_sma_strategy(
                     'gain/loss': gain_loss,
                     'balance': balance
                 })
-                data.at[date, 'Signal'] = -1  # Mark sell signal
+                data.at[date, 'Signal'] = -1
                 shares = 0
                 buy_price = None
-            # Stop-loss
+                holding_period = 0
+                continue
             elif price_change <= -STOP_LOSS_PERCENT:
                 transaction_amount = shares * price
                 gain_loss = (price - buy_price) * shares
@@ -116,9 +82,61 @@ def backtest_sma_strategy(
                     'gain/loss': gain_loss,
                     'balance': balance
                 })
-                data.at[date, 'Signal'] = -1  # Mark sell signal
+                data.at[date, 'Signal'] = -1
                 shares = 0
                 buy_price = None
+                holding_period = 0
+                continue
+
+            # Updated Sell Signal: Sell when short SMA crosses above long SMA
+            if (
+                short_sma_prev <= long_sma_prev and
+                short_sma_curr > long_sma_curr and
+                holding_period >= MIN_HOLDING_PERIOD
+            ):
+                transaction_amount = shares * price
+                gain_loss = (price - buy_price) * shares
+                balance += transaction_amount
+                trade_log.append({
+                    'date': date.strftime('%m/%d/%Y'),
+                    'symbol': symbol,
+                    'action': 'SELL',
+                    'price': price,
+                    'shares': shares,
+                    'transaction_amount': transaction_amount,
+                    'gain/loss': gain_loss,
+                    'balance': balance
+                })
+                data.at[date, 'Signal'] = -1
+                shares = 0
+                buy_price = None
+                holding_period = 0
+        else:
+            holding_period = 0
+
+            # Updated Buy Signal: Buy when short SMA crosses below long SMA
+            if (
+                short_sma_prev >= long_sma_prev and
+                short_sma_curr < long_sma_curr and
+                shares == 0
+            ):
+                shares = int(balance / price)
+                if shares > 0:
+                    transaction_amount = shares * price
+                    balance -= transaction_amount
+                    buy_price = price
+                    trade_log.append({
+                        'date': date.strftime('%m/%d/%Y'),
+                        'symbol': symbol,
+                        'action': 'BUY',
+                        'price': price,
+                        'shares': shares,
+                        'transaction_amount': -transaction_amount,
+                        'gain/loss': None,
+                        'balance': balance
+                    })
+                    data.at[date, 'Signal'] = 1
+                    holding_period = 0
 
     # Sell remaining shares at the end
     if shares > 0:
@@ -144,49 +162,47 @@ def backtest_sma_strategy(
     return balance, trade_log, data
 
 def optimize_sma_windows(data, symbol):
-    """
-    Iterates over possible SMA window combinations to find at least one profitable trade.
-    """
     from itertools import product
 
     # Define ranges for SMA windows
     short_window_range = range(5, 51, 5)    # Short SMA from 5 to 50 in steps of 5
     long_window_range = range(20, 201, 20)  # Long SMA from 20 to 200 in steps of 20
 
-    max_profit = float('-inf')
+    best_profit_per_trade = float('-inf')
     best_result = None
 
     for short_window, long_window in product(short_window_range, long_window_range):
         if short_window >= long_window:
-            continue  # Skip invalid combinations where short_window >= long_window
+            continue
 
         final_balance, trade_log, data_with_signals = backtest_sma_strategy(
             data.copy(), symbol, short_window, long_window
         )
 
-        # Check if there's at least one profitable trade
-        profitable_trades = [
-            trade for trade in trade_log
-            if trade.get('gain/loss') is not None and trade['gain/loss'] > 0
+        # Calculate gains/losses for closed trades
+        gains_losses = [
+            trade['gain/loss'] for trade in trade_log
+            if trade['action'].startswith('SELL') and trade['gain/loss'] is not None
         ]
+        total_gain_loss = sum(gains_losses)
+        num_trades = len(gains_losses)
 
-        # Calculate total gain/loss
-        total_gain_loss = sum(
-            trade['gain/loss'] for trade in trade_log if trade['gain/loss'] is not None
-        )
+        if num_trades > 0:
+            profit_per_trade = total_gain_loss / num_trades
 
-        if profitable_trades and total_gain_loss > max_profit:
-            max_profit = total_gain_loss
-            best_result = (final_balance, trade_log, data_with_signals, short_window, long_window)
+            # Check if this combination yields higher profit per trade
+            if profit_per_trade > best_profit_per_trade:
+                best_profit_per_trade = profit_per_trade
+                best_result = (final_balance, trade_log, data_with_signals, short_window, long_window, best_profit_per_trade)
+                print(f"New best profit per trade: ${profit_per_trade:.2f} with short_window={short_window}, long_window={long_window}")
 
     if best_result:
-        final_balance, trade_log, data_with_signals, short_window, long_window = best_result
-        print(f"Best SMA windows: short_window={short_window}, long_window={long_window}")
-        return final_balance, trade_log, data_with_signals, short_window, long_window
+        final_balance, trade_log, data_with_signals, short_window, long_window, best_profit_per_trade = best_result
+        print(f"Optimal SMA windows for max profit per trade: short_window={short_window}, long_window={long_window}")
+        return final_balance, trade_log, data_with_signals, short_window, long_window, best_profit_per_trade
     else:
         print("No profitable SMA window combination found.")
-        return None, None, None, None, None
-
+        return None, None, None, None, None, None
 
 def save_trades_to_csv(trade_log, final_balance):
     """Save the trade log and summary statistics to a CSV file."""

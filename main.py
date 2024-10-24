@@ -135,14 +135,13 @@ def main():
             messagebox.showinfo("No Data", "No data available for the selected date range.")
             return
 
-        # Optimize SMA windows to find at least one profitable trade
         result = optimize_sma_windows(filtered_data, symbol)
 
         if result[0] is None:
             messagebox.showinfo("Optimization Result", "No profitable SMA window combination found.")
             return
 
-        final_balance, trade_log, data_with_signals, short_window, long_window = result
+        final_balance, trade_log, data_with_signals, short_window, long_window, best_profit_per_trade = result
 
         # Save the backtest results to CSV
         save_trades_to_csv(trade_log, final_balance)
@@ -154,6 +153,7 @@ def main():
             "Backtest Complete",
             f"Backtest complete using SMA windows: short={short_window}, long={long_window}.\n"
             f"Final balance: ${final_balance:,.2f}\n"
+            f"Profit per trade: ${best_profit_per_trade:,.2f}\n"
             "Trades saved to sma_crossover_trades.csv."
         )
 
