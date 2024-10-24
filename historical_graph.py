@@ -3,9 +3,14 @@ import pandas as pd
 import time
 
 def plot_historical_graph(data, symbol, start_date, end_date):
-    """Plot historical graph from start_date to end_date with MM/DD/YYYY format."""
-    data['Date'] = pd.to_datetime(data['Date'])  # Ensure date is in datetime format
-    data.set_index('Date', inplace=True)  # Set Date as index for plotting
+    """Plot historical graph from start_date to end_date."""
+    # Create a copy of the data to avoid modifying the original
+    data = data.copy()
+    
+    # Check if the index is already datetime
+    if not isinstance(data.index, pd.DatetimeIndex):
+        # Convert index to datetime if it's not already
+        data.index = pd.to_datetime(data.index)
 
     plt.figure(figsize=(10, 6))
     plt.plot(data.index, data['Close'], label='Close Price')
