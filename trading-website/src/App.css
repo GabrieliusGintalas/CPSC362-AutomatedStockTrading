@@ -1,0 +1,121 @@
+@import './Colors.css';
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: var(--DarkGray);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: var(--DarkGray);
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+body {
+  background-color: var(--DarkGray);
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.title {
+  color: var(--DarkBlue);
+  font-size: 48px;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  margin-top: 30px;
+}
+
+.default-text {
+  font-size: 18px;
+  color: var(--LightBlue);
+  text-align: center; 
+  margin-top: 10px; 
+  font-family: 'Arial', sans-serif; 
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px; 
+  margin-top: 20px; 
+  margin-bottom: 20px;
+}
+
+.symbol-button {
+  background-color: var(--LightGray); 
+  color: white; 
+  font-size: 16px; 
+  padding: 10px 60px; 
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  transition: background-color 0.3s ease;
+}
+
+.symbol-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.date-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.date-input-inline {
+  width: 2.5ch; /* Enough space for 2 digits */
+  padding: 5px;
+  font-size: 16px;
+  text-align: center;
+  margin: 0 5px;
+}
+
+.year-input {
+  width: 4.5ch; /* Enough space for 4 digits */
+}
+
+/* Remove spinner arrows for number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+
+
+
+
+
