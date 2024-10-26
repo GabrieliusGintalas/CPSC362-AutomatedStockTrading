@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS } from 'chart.js/auto';
+import StockChart from './StockChart';
+
 
 function App() {
   const today = new Date();
@@ -12,6 +16,7 @@ function App() {
   const [day, setDay] = useState(defaultDay);
   const [year, setYear] = useState(defaultYear);
   const [marketData, setMarketData] = useState([]); // State to store market data
+  const [chartData, setChartData] = useState(null);
 
   // Helper function to ensure valid input and proper date format
   const handleInputChange = (e, setter, maxLength) => {
@@ -46,7 +51,7 @@ function App() {
     const fetchData = async () => {
       try {
         const endDate = `${year}-${month}-${day}`;
-        const response = await fetch('/fetch_market_data', {
+        const response = await fetch('http://localhost:5000/fetch_market_data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -60,10 +65,10 @@ function App() {
         const data = await response.json();
         if (response.ok) {
           console.log('Market Data:', data); // Print the data in the console
-          setMarketData(data); // Store the data in the state
+          setMarketData(data.data); // Store the actual market data array
         } else {
           console.error('Error fetching market data:', data.error);
-        }
+        }        
       } catch (error) {
         console.error('Error fetching market data:', error);
       }
@@ -71,6 +76,31 @@ function App() {
 
     fetchData();
   }, [selectedSymbol, month, day, year]); // Trigger fetch when symbol or date changes
+
+  useEffect(() => {
+    if (Array.isArray(marketData) && marketData.length > 0) {
+      const labels = marketData.map(entry => entry.Date);
+      const dataValues = marketData.map(entry => entry.Close);
+  
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: `Closing Price of ${selectedSymbol}`,
+            data: dataValues,
+            fill: false,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgba(75, 192, 192, 0.2)',
+          },
+        ],
+      };
+  
+      setChartData(data);
+    } else {
+      setChartData(null);
+    }
+  }, [marketData, selectedSymbol]);
+  
 
   return (
     <div>
@@ -115,11 +145,11 @@ function App() {
         />
       </p>
 
-      {/* Display the market data */}
       <div>
-        <h2>Market Data</h2>
-        <pre>{JSON.stringify(marketData, null, 2)}</pre> {/* Pretty-print JSON data */}
+      <h2>Market Data Chart</h2>
+        <StockChart marketData={marketData} selectedSymbol={selectedSymbol} />
       </div>
+
     </div>
   );
 }
