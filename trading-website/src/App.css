@@ -92,7 +92,7 @@ body {
 }
 
 .date-input-inline {
-  width: 2.5ch; /* Enough space for 2 digits */
+  width: 2.5ch; 
   padding: 5px;
   font-size: 16px;
   text-align: center;
@@ -100,10 +100,9 @@ body {
 }
 
 .year-input {
-  width: 4.5ch; /* Enough space for 4 digits */
+  width: 4.5ch; 
 }
 
-/* Remove spinner arrows for number inputs */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -113,6 +112,8 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+
 
 
 

@@ -4,7 +4,6 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import StockChart from './StockChart';
 
-
 function App() {
   const today = new Date();
   const defaultMonth = String(today.getMonth() + 1).padStart(2, '0');
@@ -65,10 +64,10 @@ function App() {
         const data = await response.json();
         if (response.ok) {
           console.log('Market Data:', data); // Print the data in the console
-          setMarketData(data.data); // Store the actual market data array
+          setMarketData(data.data); // Store the data in the state
         } else {
           console.error('Error fetching market data:', data.error);
-        }        
+        }
       } catch (error) {
         console.error('Error fetching market data:', error);
       }
@@ -76,31 +75,6 @@ function App() {
 
     fetchData();
   }, [selectedSymbol, month, day, year]); // Trigger fetch when symbol or date changes
-
-  useEffect(() => {
-    if (Array.isArray(marketData) && marketData.length > 0) {
-      const labels = marketData.map(entry => entry.Date);
-      const dataValues = marketData.map(entry => entry.Close);
-  
-      const data = {
-        labels: labels,
-        datasets: [
-          {
-            label: `Closing Price of ${selectedSymbol}`,
-            data: dataValues,
-            fill: false,
-            backgroundColor: 'rgb(75, 192, 192)',
-            borderColor: 'rgba(75, 192, 192, 0.2)',
-          },
-        ],
-      };
-  
-      setChartData(data);
-    } else {
-      setChartData(null);
-    }
-  }, [marketData, selectedSymbol]);
-  
 
   return (
     <div>
@@ -146,9 +120,9 @@ function App() {
       </p>
 
       <div>
-      <h2>Market Data Chart</h2>
-        <StockChart marketData={marketData} selectedSymbol={selectedSymbol} />
-      </div>
+    <h2>Market Data Chart</h2>
+      <StockChart marketData={marketData} selectedSymbol={selectedSymbol} />
+    </div>
 
     </div>
   );
