@@ -9,3 +9,6 @@
 - pip install flask flask_cors yfinance
 - python3 server.py
 
+
+or simply do:
+- ./run.sh (auto setup for all the front end and back-end code and ran locally)
