@@ -33,7 +33,7 @@ function App() {
     if (isNaN(m) || m < 1) m = 1;
     if (m > 12) m = 12;
 
-    if (isNaN(y) || y < 2024) y = 2024;
+    if (isNaN(y) || y < 2021) y = 2024;
     if (y > defaultYear) y = defaultYear;
 
     const daysInMonth = new Date(y, m, 0).getDate();
@@ -120,9 +120,23 @@ function App() {
       </p>
 
       <div>
-    <h2>Market Data Chart</h2>
-      <StockChart marketData={marketData} selectedSymbol={selectedSymbol} />
-    </div>
+        <StockChart marketData={marketData} selectedSymbol={selectedSymbol} />
+      </div>
+
+      <p className="default-text">Please select a trading algorithm that you would like to use</p>
+      <div className="button-container">
+        <button className="symbol-button" onClick={() => setSelectedSymbol('FNGU')}>
+          SMA
+        </button>
+        <button className="symbol-button" onClick={() => setSelectedSymbol('FNGD')}>
+          BB
+        </button>
+        <button className="symbol-button" onClick={() => setSelectedSymbol('FNGD')}>
+          MACD
+        </button>
+      </div>
+
+
 
     </div>
   );
