@@ -3,6 +3,7 @@ import './App.css';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import StockChart from './StockChart';
+import TradeLogTable from './TradeLog';
 
 function App() {
   const today = new Date();
@@ -14,8 +15,12 @@ function App() {
   const [month, setMonth] = useState(defaultMonth);
   const [day, setDay] = useState(defaultDay);
   const [year, setYear] = useState(defaultYear);
-  const [marketData, setMarketData] = useState([]); // State to store market data
-  const [chartData, setChartData] = useState(null);
+  const [marketData, setMarketData] = useState([]);
+  const [tradeLog, setTradeLog] = useState([]);
+  const [finalBalance, setFinalBalance] = useState(0);
+  const [totalGainLoss, setTotalGainLoss] = useState(0);
+  const [annualReturn, setAnnualReturn] = useState(0);
+  const [totalReturn, setTotalReturn] = useState(0);
 
   // Helper function to ensure valid input and proper date format
   const handleInputChange = (e, setter, maxLength) => {
@@ -63,8 +68,10 @@ function App() {
 
         const data = await response.json();
         if (response.ok) {
-          console.log('Market Data:', data); // Print the data in the console
-          setMarketData(data.data); // Store the data in the state
+          console.log('Market Data:', data); 
+          setMarketData(data.data); 
+          setTradeLog(data.trade_log)
+          setFinalBalance(data.final_balance)
         } else {
           console.error('Error fetching market data:', data.error);
         }
@@ -75,6 +82,35 @@ function App() {
 
     fetchData();
   }, [selectedSymbol, month, day, year]); // Trigger fetch when symbol or date changes
+
+  // Function to run backtest and fetch the results
+  const runBacktest = async () => {
+    try {
+      const endDate = `${year}-${month}-${day}`;
+      const response = await fetch('http://localhost:5000/run_backtest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          symbol: selectedSymbol,
+          end_date: endDate,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Backtest Data:', data);
+        setTradeLog(data.trade_log); 
+        setFinalBalance(data.final_balance); 
+      } else {
+        console.error('Error running backtest:', data.error);
+      }
+    } catch (error) {
+      console.error('Error running backtest:', error);
+    }
+  };
+
 
   return (
     <div>
@@ -125,7 +161,7 @@ function App() {
 
       <p className="default-text">Please select a trading algorithm that you would like to use</p>
       <div className="button-container">
-        <button className="symbol-button" onClick={() => setSelectedSymbol('FNGU')}>
+        <button className="symbol-button" onClick={runBacktest}>
           SMA
         </button>
         <button className="symbol-button" onClick={() => setSelectedSymbol('FNGD')}>
@@ -136,8 +172,15 @@ function App() {
         </button>
       </div>
 
-
-
+      <div>
+        <TradeLogTable
+          trades={tradeLog}
+          finalBalance={finalBalance}
+          totalGainLoss={totalGainLoss}
+          annualReturn={annualReturn}
+          totalReturn={totalReturn}
+        />
+      </div>
     </div>
   );
 }

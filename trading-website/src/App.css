@@ -50,14 +50,12 @@ body {
   font-size: 48px;
   text-align: center;
   font-family: 'Arial', sans-serif;
-  margin-top: 30px;
 }
 
 .default-text {
   font-size: 18px;
   color: var(--LightBlue);
   text-align: center; 
-  margin-top: 10px; 
   font-family: 'Arial', sans-serif; 
 }
 
@@ -65,8 +63,6 @@ body {
   display: flex;
   justify-content: center;
   gap: 10px; 
-  margin-top: 20px; 
-  margin-bottom: 20px;
 }
 
 .symbol-button {
@@ -88,7 +84,6 @@ body {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 10px;
 }
 
 .date-input-inline {
@@ -111,6 +106,44 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.trade-log-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 20px;
+  width: 50%;
+  margin: 0 auto;
+}
+
+.trade-log-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.trade-log-table th, .trade-log-table td {
+  padding: 12px;
+  border: 1px solid var(--Black);
+  text-align: center;
+}
+
+.trade-log-table th {
+  background-color: var(--LightGray);
+  font-weight: bold;
+}
+
+.trade-log-table tbody tr {
+  background-color: var(--SkyBlue);
+}
+
+.trade-log-table tbody tr:hover {
+  background-color: var(--SkyBlue);
+}
+
+.trade-log-table td {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
 }
 
 
