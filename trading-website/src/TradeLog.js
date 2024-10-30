@@ -69,11 +69,11 @@ const TradeLogTable = ({ trades, finalBalance, totalGainLoss, annualReturn, tota
               <tr key={index}>
                 <td>{trade.date}</td>
                 <td>{trade.action}</td>
-                <td>{trade.price.toFixed(2)}</td>
+                <td>${trade.price.toFixed(2)}</td>
                 <td>{trade.shares}</td>
-                <td>{trade.transaction_amount.toFixed(2)}</td>
+                <td>${trade.transaction_amount.toFixed(2)}</td>
                 <td>{trade['gain/loss'] !== null ? trade['gain/loss'].toFixed(2) : 'N/A'}</td>
-                <td>{trade.balance.toFixed(2)}</td>
+                <td>${trade.balance.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
