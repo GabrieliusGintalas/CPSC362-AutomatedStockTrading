@@ -46,7 +46,7 @@ body {
 }
 
 .title {
-  color: var(--DarkBlue);
+  color: var(--Black);
   font-size: 48px;
   text-align: center;
   font-family: 'Arial', sans-serif;
@@ -54,7 +54,7 @@ body {
 
 .default-text {
   font-size: 18px;
-  color: var(--LightBlue);
+  color: var(--Black);
   text-align: center; 
   font-family: 'Arial', sans-serif; 
 }

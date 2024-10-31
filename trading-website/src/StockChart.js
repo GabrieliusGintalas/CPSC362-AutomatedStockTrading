@@ -86,7 +86,7 @@ function StockChart({ marketData, selectedSymbol }) {
   };
 
   const chartTitleStyle = {
-    color: 'var(--LightBlue)',
+    color: 'var(--Black)',
   }
   
   const chartContainerStyle = {

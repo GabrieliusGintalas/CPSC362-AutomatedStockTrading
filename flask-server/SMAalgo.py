@@ -43,6 +43,7 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
         price = data['Close'].iloc[i]
         position = data['position'].iloc[i]
         signal = data['signal'].iloc[i]
+        date = pd.to_datetime(data['Date'].iloc[i]).strftime('%m/%d/%Y')
 
         # Execute buy when SMA50 crosses above SMA200
         if signal == 1 and shares == 0 and last_signal != 1:  # Buy signal (SMA50 crosses above SMA200)
@@ -50,7 +51,7 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
             transaction_amount = shares * price
             balance -= transaction_amount
             trade_log.append({
-                'date': data.index[i],
+                'date': date,
                 'action': 'BUY',
                 'price': price,
                 'shares': shares,
@@ -67,7 +68,7 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
             gain_loss = transaction_amount - (shares * trade_log[-1]['price'])
             balance += transaction_amount
             trade_log.append({
-                'date': data.index[i],
+                'date': date,
                 'action': 'SELL',
                 'price': price,
                 'shares': shares,
@@ -86,7 +87,7 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
         gain_loss = transaction_amount - (shares * trade_log[-1]['price'])
         balance += transaction_amount
         trade_log.append({
-            'date': data.index[-1],
+            'date': date,
             'action': 'SELL',
             'price': price,
             'shares': shares,
@@ -102,8 +103,8 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
     end_date = data.index[-1]
     total_days = (end_date - start_date)
     total_years = total_days / 365.25
-    annual_return = ((balance / INITIAL_BALANCE) ** (1 / total_years)) - 1 
     total_return = (balance / INITIAL_BALANCE - 1) * 100
+    annual_return =  total_return / total_years
 
     return balance, trade_log, total_gain_loss, annual_return, total_return
 
