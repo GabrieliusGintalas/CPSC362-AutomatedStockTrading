@@ -62,13 +62,17 @@ def run_backtest():
     try:
         # Fetch market data and run backtest
         market_data_df = fetch_market_data_func(symbol, start_date, end_date)
-        final_balance, trade_log = backtest_sma(market_data_df)
+        final_balance, trade_log, total_gain_loss, annual_return, total_return = backtest_sma(market_data_df)
 
         # Return the backtest results
         response = {
             'status': 'success',
             'trade_log': trade_log,
-            'final_balance': final_balance
+            'final_balance': final_balance,
+            'total_gain_loss': total_gain_loss,
+            'annual_return': annual_return,
+            'total_return': total_return
+
         }
         return jsonify(response), 200
 

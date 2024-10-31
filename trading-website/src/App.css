@@ -134,11 +134,7 @@ input[type="number"] {
 }
 
 .trade-log-table tbody tr {
-  background-color: var(--SkyBlue);
-}
-
-.trade-log-table tbody tr:hover {
-  background-color: var(--SkyBlue);
+  background-color: var(--White);
 }
 
 .trade-log-table td {

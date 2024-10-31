@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto';
 import StockChart from './StockChart';
 import TradeLogTable from './TradeLog';
 
@@ -103,6 +101,9 @@ function App() {
         console.log('Backtest Data:', data);
         setTradeLog(data.trade_log); 
         setFinalBalance(data.final_balance); 
+        setTotalGainLoss(data.total_gain_loss);
+        setAnnualReturn(data.annual_return);
+        setTotalReturn(data.total_return)
       } else {
         console.error('Error running backtest:', data.error);
       }

@@ -12,6 +12,7 @@ const TradeLogTable = ({ trades, finalBalance, totalGainLoss, annualReturn, tota
     justifyContent: 'center',
     alignItems: 'center',
     margin: '0 auto',
+    padding: '50px'
   };
 
   const tradelogText = {
@@ -33,7 +34,7 @@ const TradeLogTable = ({ trades, finalBalance, totalGainLoss, annualReturn, tota
     fontSize: '18px',
     fontWeight: 'normal',
     textAlign: 'center',
-    backgroundColor: 'var(--SkyBlue)',
+    backgroundColor: 'var(--White)',
     padding: '20px',
     border: '1px solid #ddd',
     borderRadius: '5px',
@@ -47,6 +48,8 @@ const TradeLogTable = ({ trades, finalBalance, totalGainLoss, annualReturn, tota
   const performanceValue = {
     fontWeight: 'bold',
   };
+
+  const gainLossColor = totalGainLoss > 0? 'var(--Green)' : 'var(--Red  )';
 
   return (
     <div style={tradelogHolder}>
@@ -85,13 +88,13 @@ const TradeLogTable = ({ trades, finalBalance, totalGainLoss, annualReturn, tota
         <div style={{...performanceItem, ...performanceValue}}>${finalBalance.toFixed(2)}</div>
         
         <div style={performanceItem}>Gain/Loss for all trades</div>
-        <div style={{...performanceItem, ...performanceValue}}>${totalGainLoss.toFixed(2)}</div>
+        <div style={{...performanceItem, ...performanceValue, color: gainLossColor}}>${totalGainLoss.toFixed(2)}</div>
         
         <div style={performanceItem}>Annual % Return</div>
-        <div style={{...performanceItem, ...performanceValue}}>{annualReturn.toFixed(2)}%</div>
+        <div style={{...performanceItem, ...performanceValue, color: gainLossColor}}>{annualReturn.toFixed(2)}%</div>
         
         <div style={performanceItem}>Total % Return</div>
-        <div style={{...performanceItem, ...performanceValue}}>{totalReturn.toFixed(2)}%</div>
+        <div style={{...performanceItem, ...performanceValue, color: gainLossColor}}>{totalReturn.toFixed(2)}%</div>
       </div>
 
     </div>

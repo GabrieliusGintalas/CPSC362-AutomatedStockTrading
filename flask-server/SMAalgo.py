@@ -94,9 +94,18 @@ def backtest_sma(data, short_window=SHORT_WINDOW, long_window=LONG_WINDOW):
             'gain/loss': gain_loss,
             'balance': balance
         })
+
         print(f"Final SELL on {data.index[-1]}: Price = {price}")
 
-    return balance, trade_log
+    total_gain_loss = sum(trade['gain/loss'] for trade in trade_log if trade['gain/loss'] is not None)
+    start_date = data.index[0]
+    end_date = data.index[-1]
+    total_days = (end_date - start_date)
+    total_years = total_days / 365.25
+    annual_return = ((balance / INITIAL_BALANCE) ** (1 / total_years)) - 1 
+    total_return = (balance / INITIAL_BALANCE - 1) * 100
+
+    return balance, trade_log, total_gain_loss, annual_return, total_return
 
 def save_trades_to_csv(trade_log, final_balance, data, symbol):
     filename = "sma_crossover_trades.csv"
