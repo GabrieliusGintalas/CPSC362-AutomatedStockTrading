@@ -82,7 +82,7 @@ function App() {
   }, [selectedSymbol, month, day, year]); // Trigger fetch when symbol or date changes
 
   // Function to run backtest and fetch the results
-  const runBacktest = async () => {
+  const runBacktest = async (algorithm) => {
     try {
       const endDate = `${year}-${month}-${day}`;
       const response = await fetch('http://localhost:5000/run_backtest', {
@@ -93,6 +93,7 @@ function App() {
         body: JSON.stringify({
           symbol: selectedSymbol,
           end_date: endDate,
+          algorithm: algorithm,  
         }),
       });
 
@@ -162,13 +163,13 @@ function App() {
 
       <p className="default-text">Please select a trading algorithm that you would like to use</p>
       <div className="button-container">
-        <button className="symbol-button" onClick={runBacktest}>
+        <button className="symbol-button" onClick={() => runBacktest('SMA')}>
           SMA
         </button>
-        <button className="symbol-button" onClick={() => setSelectedSymbol('FNGD')}>
+        <button className="symbol-button" onClick={() => runBacktest('BollingerBands')}>
           BB
         </button>
-        <button className="symbol-button" onClick={() => setSelectedSymbol('FNGD')}>
+        <button className="symbol-button" onClick={() => runBacktest('MACD')}>
           MACD
         </button>
       </div>

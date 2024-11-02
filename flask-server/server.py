@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from fetch_market_data import fetch_market_data as fetch_market_data_func
-from SMAalgo import backtest_sma
+from tradingalgo import backtest
 
 app = Flask(__name__)
 CORS(app)
@@ -29,28 +29,27 @@ def fetch_market_data():
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
 
     try:
+        # Fetch market data only, no need to call backtest here
         market_data_df = fetch_market_data_func(symbol, start_date, end_date)
         market_data = market_data_df.to_dict(orient='records')
-        
-        final_balance = backtest_sma(market_data_df)
 
         response = {'status': 'success', 'data': market_data}
         return jsonify(response), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
     
 @app.route('/run_backtest', methods=['POST'])
 def run_backtest():
     data = request.get_json()
     symbol = data.get('symbol')
     end_date = data.get('end_date')
+    algorithm = data.get('algorithm')
     start_date = '2021-01-01'
 
-    # Validate symbol and end_date
-    if not symbol or not end_date:
-        return jsonify({'error': 'Symbol and end_date are required.'}), 400
+    if not symbol or not end_date or not algorithm:
+        return jsonify({'error': 'Symbol, end_date, and algorithm are required.'}), 400
 
-    # Validate date format and ensure end_date is after start_date
     try:
         start_dt = datetime.strptime(start_date, '%Y-%m-%d')
         end_dt = datetime.strptime(end_date, '%Y-%m-%d')
@@ -60,11 +59,9 @@ def run_backtest():
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
 
     try:
-        # Fetch market data and run backtest
         market_data_df = fetch_market_data_func(symbol, start_date, end_date)
-        final_balance, trade_log, total_gain_loss, annual_return, total_return = backtest_sma(market_data_df)
+        final_balance, trade_log, total_gain_loss, annual_return, total_return = backtest(market_data_df, symbol, algorithm)
 
-        # Return the backtest results
         response = {
             'status': 'success',
             'trade_log': trade_log,
@@ -72,10 +69,8 @@ def run_backtest():
             'total_gain_loss': total_gain_loss,
             'annual_return': annual_return,
             'total_return': total_return
-
         }
         return jsonify(response), 200
-
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
