@@ -12,7 +12,6 @@ const TradeLogTable = ({ trades, finalBalance, totalGainLoss, annualReturn, tota
     justifyContent: 'center',
     alignItems: 'center',
     margin: '0 auto',
-    padding: '50px'
   };
 
   const tradelogText = {

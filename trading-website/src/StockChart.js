@@ -187,7 +187,6 @@ function StockChart({ marketData, selectedSymbol, tradeLog }) {
 
   const chartContainerStyle = {
     textAlign: 'center',
-    padding: '10px',
     backgroundColor: '#f5f5f5',
     borderRadius: '10px',
     width: '50%',

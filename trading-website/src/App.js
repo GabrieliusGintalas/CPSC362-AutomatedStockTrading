@@ -208,7 +208,7 @@ function App() {
           totalReturn={totalReturn}
         />
       </div>
-      <div style={{ textAlign: 'center', marginTop: '1em' }}>
+      <div style={{ textAlign: 'center' }}>
         {tradeLog?.length > 0 && (
           <p
             className="download-link"
