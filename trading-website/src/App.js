@@ -48,7 +48,32 @@ function App() {
     setYear(String(y));
   };
 
-  // Fetch market data from the backend when the symbol or date changes
+  const downloadTradeLog = () => {
+    const csvContent = [
+      ["Date", "Symbol", "Action", "Price", "Shares", "Transaction Amount", "Gain/Loss", "Balance"],
+      ...tradeLog.map(trade => [
+        trade.date, trade.symbol, trade.action, trade.price, trade.shares, trade.transaction_amount, trade["gain/loss"], trade.balance
+      ]),
+      [],
+      ["Summary"],
+      ["Final Balance", finalBalance],
+      ["Total Gain/Loss", totalGainLoss],
+      ["Annual Return (%)", annualReturn],
+      ["Total Return (%)", totalReturn]
+    ]
+    .map(row => row.join(","))
+    .join("\n");
+  
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "trade_log.csv";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -182,6 +207,22 @@ function App() {
           annualReturn={annualReturn}
           totalReturn={totalReturn}
         />
+      </div>
+      <div style={{ textAlign: 'center', marginTop: '1em' }}>
+        {tradeLog?.length > 0 && (
+          <p
+            className="download-link"
+            onClick={downloadTradeLog}
+            style={{
+              cursor: 'pointer',
+              color: 'blue',
+              textDecoration: 'underline',
+              display: 'inline-block'
+            }}
+          >
+            Download Trade Log as CSV
+          </p>
+        )}
       </div>
     </div>
   );
