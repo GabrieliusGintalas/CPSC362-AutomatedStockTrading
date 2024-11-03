@@ -158,7 +158,7 @@ function App() {
       </p>
 
       <div>
-        <StockChart marketData={marketData} selectedSymbol={selectedSymbol} />
+        <StockChart marketData={marketData} selectedSymbol={selectedSymbol} tradeLog={tradeLog} />
       </div>
 
       <p className="default-text">Please select a trading algorithm that you would like to use</p>
