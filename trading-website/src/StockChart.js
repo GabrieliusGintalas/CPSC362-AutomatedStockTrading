@@ -4,6 +4,10 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import './Colors.css';
 import 'chartjs-adapter-date-fns';
 
+function getCSSVariable(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
 function StockChart({ marketData, selectedSymbol, tradeLog }) {
   const [chartData, setChartData] = useState(null);
 
@@ -55,7 +59,7 @@ function StockChart({ marketData, selectedSymbol, tradeLog }) {
             type: 'scatter',
             label: 'Buy Signals',
             data: buySignals,
-            backgroundColor: 'green',
+            backgroundColor: getCSSVariable('--Red'),
             borderColor: 'black',
             borderWidth: 1,
             pointRadius: 7,
@@ -68,7 +72,7 @@ function StockChart({ marketData, selectedSymbol, tradeLog }) {
             type: 'scatter',
             label: 'Sell Signals',
             data: sellSignals,
-            backgroundColor: 'red',
+            backgroundColor: getCSSVariable('--Green'),
             borderColor: 'black',
             borderWidth: 1,
             pointRadius: 7,
@@ -187,6 +191,7 @@ function StockChart({ marketData, selectedSymbol, tradeLog }) {
 
   const chartContainerStyle = {
     textAlign: 'center',
+    padding: '10px',
     backgroundColor: '#f5f5f5',
     borderRadius: '10px',
     width: '50%',

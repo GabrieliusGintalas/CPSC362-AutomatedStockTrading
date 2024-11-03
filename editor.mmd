@@ -1,0 +1,78 @@
+classDiagram
+
+    %% Frontend
+    class App{
+        +setSelectedSymbol
+        +setMonth
+        +setDate
+        +setYear
+        +setMarketData
+        +setTradeLog
+        +setFinalBalance
+        +setTotalGainLoss
+        +setAnnualReturn
+        +setTotalReturn
+        +fetchData(selectedSymbol)
+        +runBacktest(selectedAlgorithm)
+        +downloadTradeLog()
+    }
+
+    class StockChart{
+        +StockChartComponent
+    }
+
+    class TradeLogTable{
+        +TradeLogComponent
+    }
+
+    class Server{
+        +fetchMarketData(selectedSymbol)
+        +runBacktest(selectedAlgorithm)
+    }
+
+    class TradingAlgo{
+        +backtest(data, selectedAlgorithm)
+        +calculate_signals(data, algorithm)
+    }
+
+    class SMAAlgo{
+        +calculate_sma_signals(data)
+    }
+
+    class MACDAlgo{
+        +calculate_macd(data)
+    }
+
+    class BBAlgo{
+        +calculate_bollinger_bands(data)
+    }
+
+    class Fetch_Market_Data{
+        +fetch_market_data()
+    }
+
+    class YahooFinance{
+        +fetch_market_data()
+    }
+
+
+    App --> StockChart : uses
+    App --> TradeLogTable : uses
+    App --> Server : calls
+    App --> downloadTradeLog : calls
+
+    Server --> TradingAlgo : calls backtest
+
+    Server --> Fetch_Market_Data : calls fetch_market_data
+    Fetch_Market_Data --> YahooFinance : calls fetch_market_data
+
+    TradingAlgo --> SMAAlgo : calls calculate_sma_signals
+    TradingAlgo --> MACDAlgo : calls calculate_macd
+    TradingAlgo --> BBAlgo : calls calculate_bollinger_bands
+
+    SMAAlgo --> TradingAlgo : updates signal
+    MACDAlgo --> TradingAlgo : updates signal
+    BBAlgo --> TradingAlgo : updates signal
+
+    TradeLogTable --> App : returns trade log
+    TradingAlgo --> Fetch_Market_Data : uses market data
