@@ -216,7 +216,9 @@ function App() {
             style={{
               cursor: 'pointer',
               color: 'blue',
+              fontWeight: 'bold',
               textDecoration: 'underline',
+              background: 'white',
               display: 'inline-block'
             }}
           >
