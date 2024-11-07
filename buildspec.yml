@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+      python: 3.11
+    commands:
+      - npm install
+      - cd flask-server
+      - pip install flask flask_cors yfinance
+  
+  build:
+    commands:
+      - cd ../trading-website
+      - npm install
+      # If you have a build script, uncomment the next line
+      # - npm run build
+      
+  post_build:
+    commands:
+      - cd ../flask-server
+      - python server.py
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: '.'
