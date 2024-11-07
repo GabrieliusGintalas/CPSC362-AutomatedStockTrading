@@ -16,11 +16,6 @@ phases:
       - npm install
       # If you have a build script, uncomment the next line
       # - npm run build
-      
-  post_build:
-    commands:
-      - cd ../flask-server
-      - python server.py
 
 artifacts:
   files:
