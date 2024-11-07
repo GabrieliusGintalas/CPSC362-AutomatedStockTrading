@@ -10,7 +10,7 @@ class TestServerIntegration(unittest.TestCase):
     def test_fetch_market_data_endpoint(self):
         # Test data
         test_payload = {
-            'symbol': 'AAPL',
+            'symbol': 'FNGU',
             'end_date': '2024-01-10'
         }
 
