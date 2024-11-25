@@ -5,6 +5,9 @@ set -e
 
 echo "Setting up test environment..."
 
+# Navigate to your_project directory
+cd ../Backend || { echo "Failed to navigate to Backend directory"; exit 1; }
+
 # Create and activate virtual environment if it doesn't exist
 if [ ! -d ".venv" ]; then
     echo "Creating virtual environment..."
@@ -16,17 +19,14 @@ source .venv/bin/activate
 
 # Install required packages
 echo "Installing required packages..."
-pip install flask flask_cors yfinance pytest pandas numpy
+pip install -r requirements.txt
 
 # Run the tests
 echo "Running unit tests..."
-cd flask-server
-python -m pytest test_trading_algo.py -v
-
-echo "Running integration tests..."
-python -m pytest test_server_integration.py -v
+python -m unittest discover tests -v
 
 # Deactivate virtual environment
 deactivate
 
 echo "Testing completed!"
+

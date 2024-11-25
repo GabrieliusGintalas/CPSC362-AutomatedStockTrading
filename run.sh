@@ -3,19 +3,32 @@
 # Start the frontend
 echo "Starting the frontend..."
 cd trading-website || { echo "Failed to navigate to trading-website directory"; exit 1; }
+npm install
 npm start &
 frontend_pid=$!
+
 
 # Wait for frontend to start
 sleep 5
 
 # Start the backend
 echo "Starting the backend..."
-cd ../flask-server || { echo "Failed to navigate to flask-server directory"; exit 1; }
-python3 -m venv .venv
+cd ../Backend || { echo "Failed to navigate to Backend directory"; exit 1; }
+
+# Create and activate virtual environment if it doesn't exist
+if [ ! -d ".venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv .venv
+fi
+
 source .venv/bin/activate
-pip install flask flask_cors yfinance
-python3 server.py &
+
+# Install required packages
+echo "Installing required packages..."
+pip install -r requirements.txt
+
+# Start the Flask app
+python3 app.py &
 backend_pid=$!
 
 # Function to handle script termination and cleanup
@@ -31,3 +44,4 @@ trap cleanup INT
 
 # Wait for both processes to end
 wait $frontend_pid $backend_pid
+
