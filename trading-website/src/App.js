@@ -78,9 +78,10 @@ function App() {
     const fetchData = async () => {
       try {
         const endDate = `${year}-${month}-${day}`;
-        const response = await fetch('http://localhost:5000/fetch_market_data', {
+        const response = await fetch('/fetch_market_data', {
           method: 'POST',
           headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -88,6 +89,10 @@ function App() {
             end_date: endDate,
           }),
         });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const data = await response.json();
         if (response.ok) {
@@ -110,9 +115,10 @@ function App() {
   const runBacktest = async (algorithm) => {
     try {
       const endDate = `${year}-${month}-${day}`;
-      const response = await fetch('http://localhost:5000/run_backtest', {
+      const response = await fetch('/run_backtest', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

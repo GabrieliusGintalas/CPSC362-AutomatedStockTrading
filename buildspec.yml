@@ -8,7 +8,7 @@ phases:
     commands:
       - npm install
       - cd flask-server
-      - pip install flask flask_cors yfinance
+      - pip install flask yfinance
   
   build:
     commands:
