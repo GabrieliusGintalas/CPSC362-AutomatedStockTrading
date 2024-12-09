@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Kill any existing processes on port 3000 and 5000
+echo "Cleaning up existing processes..."
+lsof -ti:3000 | xargs kill -9 2>/dev/null || true
+lsof -ti:5000 | xargs kill -9 2>/dev/null || true
+
 # Start the frontend
 echo "Starting the frontend..."
 cd trading-website || { echo "Failed to navigate to trading-website directory"; exit 1; }
