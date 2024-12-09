@@ -1,37 +1,31 @@
-import yfinance as yf
-import json
-import os
-import pandas as pd
+from data_access.data_access_service import DataAccessService
+from data_access.yahoo_finance_adapter import YahooFinanceAdapter
+from data_access.decorators.validation_decorator import ValidationDecorator
 
 class MarketData:
     def __init__(self, symbol, start_date, end_date):
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
-        self.data = None
+        
+        # Create base data source with decorators
+        base_source = YahooFinanceAdapter()
+        validated_source = ValidationDecorator(base_source)
+        self.data_service = DataAccessService(validated_source)
 
     def fetch_data(self):
-        """Fetch historical data for a given symbol and filter required fields."""
-        ticker = yf.Ticker(self.symbol)
-        data = ticker.history(start=self.start_date, end=self.end_date)
+        """Fetch market data using the decorated data access service"""
+        return self.data_service.get_market_data(
+            self.symbol,
+            self.start_date,
+            self.end_date
+        )
 
-        if data.empty:
-            raise ValueError(f"No market data found for symbol '{self.symbol}' between {self.start_date} and {self.end_date}.")
+    def save_data(self):
+        """Save current market data"""
+        if hasattr(self, 'data') and self.data is not None:
+            self.data_service.save_market_data(self.data, self.symbol)
 
-        filtered_data = data[['Open', 'High', 'Low', 'Close', 'Volume']].reset_index()
-        filtered_data['Date'] = filtered_data['Date'].apply(lambda x: x.isoformat())
-        self.data = filtered_data
-
-        return self.data
-
-    def save_to_json(self, filename='history.json'):
-        # Convert the filtered data to a JSON format
-        json_data = self.data.to_dict(orient='records')
-
-        # Get the directory of the current file
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        json_file_path = os.path.join(current_dir, filename)
-
-        # Save the data to history.json
-        with open(json_file_path, 'w') as f:
-            json.dump(json_data, f, indent=4)
+    def load_data(self):
+        """Load saved market data"""
+        return self.data_service.load_market_data(self.symbol)
