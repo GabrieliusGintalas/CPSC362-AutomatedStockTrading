@@ -108,26 +108,3 @@ def configure_routes(app):
 
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-
-    @app.route('/get_live_price', methods=['POST'])
-    def get_live_price():
-        try:
-            data = request.get_json()
-            symbol = data.get('symbol')
-            
-            if not symbol:
-                return jsonify({'error': 'Symbol is required.'}), 400
-
-            # Create MarketData instance
-            market_data = MarketData(symbol, None, None)
-            
-            # Get live price
-            price = market_data.live_price()
-
-            return jsonify({
-                'status': 'success',
-                'price': float(price)
-            })
-
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
