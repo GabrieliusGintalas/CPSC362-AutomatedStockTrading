@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import StockChart from './StockChart';
 import TradeLogTable from './TradeLog';
+import LivePrice from './LivePrice';
 
 function App() {
   const today = new Date();
@@ -157,6 +158,7 @@ function App() {
           FNGD
         </button>
       </div>
+      <LivePrice symbol={selectedSymbol} />
 
       <p className="default-text">
         Showing market data for symbol: {selectedSymbol} from 01/01/2021 to{' '}
