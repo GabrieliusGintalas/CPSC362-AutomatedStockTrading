@@ -86,8 +86,8 @@ function App() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            symbol: selectedSymbol,
             end_date: endDate,
+            symbol: selectedSymbol,
           }),
         });
 
@@ -158,7 +158,6 @@ function App() {
           FNGD
         </button>
       </div>
-      <LivePrice symbol={selectedSymbol} />
 
       <p className="default-text">
         Showing market data for symbol: {selectedSymbol} from 01/01/2021 to{' '}
@@ -189,6 +188,7 @@ function App() {
           maxLength="4"
         />
       </p>
+      <LivePrice symbol={selectedSymbol} />
 
       <div>
         <StockChart marketData={marketData} selectedSymbol={selectedSymbol} tradeLog={tradeLog} />

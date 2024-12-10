@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 function LivePrice({ symbol }) {
   const [price, setPrice] = useState(null);
   const [isMarketHours, setIsMarketHours] = useState(false);
-  const [lastClosingPrice, setLastClosingPrice] = useState(null);
 
   const checkMarketHours = () => {
     const now = new Date();
@@ -33,63 +32,37 @@ function LivePrice({ symbol }) {
       }
 
       const data = await response.json();
-      setLastClosingPrice(data.price);
-      if (!isMarketHours && price === null) {
-        setPrice(data.price);
-      }
+      setPrice(data.price);
     } catch (error) {
       console.error('Error fetching last closing price:', error);
     }
   };
 
-  const getLivePrice = async () => {
-    try {
-      const response = await fetch('/get_live_price', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          symbol: symbol
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setPrice(data.price);
-    } catch (error) {
-      console.error('Error fetching live price:', error);
-    }
-  };
-
   useEffect(() => {
-    const updatePrice = async () => {
+    // Reset price when symbol changes
+    setPrice(null);
+    
+    // Initial fetch of last closing price
+    getLastClosingPrice();
+
+    // Set up interval for price simulation
+    const simulatePrice = () => {
       const marketOpen = checkMarketHours();
       setIsMarketHours(marketOpen);
       
-      if (marketOpen) {
-        await getLivePrice();
-      } else {
-        if (price === null) {
-          await getLastClosingPrice();
-        } else {
-          const changePercent = (Math.random() - 0.5) * 0.002;
-          setPrice(prevPrice => prevPrice * (1 + changePercent));
-        }
-      }
+      setPrice(prevPrice => {
+        if (prevPrice === null) return null;
+        const changePercent = (Math.random() - 0.5) * 0.002;
+        return prevPrice * (1 + changePercent);
+      });
     };
 
-    updatePrice();
-    const interval = setInterval(updatePrice, 1000);
+    const interval = setInterval(simulatePrice, 1000);
     return () => clearInterval(interval);
-  }, [symbol]);
+  }, [symbol]); // Include symbol in dependencies
 
   const priceStyle = {
-    backgroundColor: 'var(--White)',
+    backgroundColor: 'var(--LightGray)',
     padding: '10px 20px',
     borderRadius: '5px',
     margin: '10px 0',
@@ -110,7 +83,7 @@ function LivePrice({ symbol }) {
       <div style={priceStyle}>
         Current Price: ${price ? price.toFixed(2) : 'Loading...'}
         <span style={statusStyle}>
-          ({isMarketHours ? 'Live Market Price' : 'Simulated Price'})
+          (Simulated Price)
         </span>
       </div>
     </div>
