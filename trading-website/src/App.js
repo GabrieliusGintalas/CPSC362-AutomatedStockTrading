@@ -223,10 +223,9 @@ function App() {
             onClick={downloadTradeLog}
             style={{
               cursor: 'pointer',
-              color: 'blue',
+              color: 'var(--Red)',
               fontWeight: 'bold',
               textDecoration: 'underline',
-              background: 'white',
               display: 'inline-block'
             }}
           >
