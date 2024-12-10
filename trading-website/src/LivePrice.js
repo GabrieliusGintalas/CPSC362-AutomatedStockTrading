@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 function LivePrice({ symbol }) {
   const [price, setPrice] = useState(null);
   const [isMarketHours, setIsMarketHours] = useState(false);
+  const [lastClosingPrice, setLastClosingPrice] = useState(null);
 
   const checkMarketHours = () => {
     const now = new Date();
@@ -12,6 +13,33 @@ function LivePrice({ symbol }) {
     const currentTime = hour * 100 + minute;
 
     return day >= 1 && day <= 5 && currentTime >= 930 && currentTime <= 1600;
+  };
+
+  const getLastClosingPrice = async () => {
+    try {
+      const response = await fetch('/get_last_closing_price', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          symbol: symbol
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setLastClosingPrice(data.price);
+      if (!isMarketHours && price === null) {
+        setPrice(data.price);
+      }
+    } catch (error) {
+      console.error('Error fetching last closing price:', error);
+    }
   };
 
   const getLivePrice = async () => {
@@ -45,17 +73,20 @@ function LivePrice({ symbol }) {
       
       if (marketOpen) {
         await getLivePrice();
-      } else if (price !== null) {
-        price = 100
-        const changePercent = (Math.random() - 0.5) * 0.002;
-        setPrice(price * (1 + changePercent));
-      } 
+      } else {
+        if (price === null) {
+          await getLastClosingPrice();
+        } else {
+          const changePercent = (Math.random() - 0.5) * 0.002;
+          setPrice(prevPrice => prevPrice * (1 + changePercent));
+        }
+      }
     };
 
     updatePrice();
-    const interval = setInterval(updatePrice, 10000);
+    const interval = setInterval(updatePrice, 1000);
     return () => clearInterval(interval);
-  }, [symbol, price]);
+  }, [symbol]);
 
   const priceStyle = {
     backgroundColor: 'var(--White)',

@@ -29,3 +29,7 @@ class MarketData:
     def load_data(self):
         """Load saved market data"""
         return self.data_service.load_market_data(self.symbol)
+    
+    def live_price(self):
+        """Fetch live price using the decorated data access service"""
+        return self.data_service.get_live_price(self.symbol)

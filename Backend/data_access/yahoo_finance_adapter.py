@@ -37,4 +37,15 @@ class YahooFinanceAdapter(DataSourceInterface):
                 json_data = json.load(f)
             return pd.DataFrame(json_data)
         except Exception as e:
-            raise Exception(f"Error loading data: {str(e)}") 
+            raise Exception(f"Error loading data: {str(e)}")
+
+    def get_live_price(self, symbol: str) -> float:
+        try:
+            ticker = yf.Ticker(symbol)
+            # Get the latest price data
+            current = ticker.history(period='1d')
+            if current.empty:
+                raise ValueError(f"No price data found for symbol {symbol}")
+            return float(current['Close'].iloc[-1])
+        except Exception as e:
+            raise Exception(f"Error fetching live price from Yahoo Finance: {str(e)}") 

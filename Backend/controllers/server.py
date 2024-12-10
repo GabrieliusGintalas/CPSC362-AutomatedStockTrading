@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify
 
 from models.market_data import MarketData
 from models.trading_strategy import TradingStrategy
-
 app = Flask(__name__)
 
 def configure_routes(app):
@@ -82,5 +81,53 @@ def configure_routes(app):
                 'total_return': total_return
             }
             return jsonify(response), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/get_last_closing_price', methods=['POST'])
+    def get_last_closing_price():
+        try:
+            data = request.get_json()
+            symbol = data.get('symbol')
+            
+            if not symbol:
+                return jsonify({'error': 'Symbol is required.'}), 400
+
+            # Create MarketData instance with today's date
+            today = datetime.now().strftime('%Y-%m-%d')
+            market_data = MarketData(symbol, '2021-01-01', today)
+            
+            # Fetch the data and get the last closing price
+            data_df = market_data.fetch_data()
+            last_close = data_df['Close'].iloc[-1]
+
+            return jsonify({
+                'status': 'success',
+                'price': float(last_close)
+            })
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/get_live_price', methods=['POST'])
+    def get_live_price():
+        try:
+            data = request.get_json()
+            symbol = data.get('symbol')
+            
+            if not symbol:
+                return jsonify({'error': 'Symbol is required.'}), 400
+
+            # Create MarketData instance
+            market_data = MarketData(symbol, None, None)
+            
+            # Get live price
+            price = market_data.live_price()
+
+            return jsonify({
+                'status': 'success',
+                'price': float(price)
+            })
+
         except Exception as e:
             return jsonify({'error': str(e)}), 500
