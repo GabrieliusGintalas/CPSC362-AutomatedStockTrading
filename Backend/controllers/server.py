@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Flask, request, jsonify
 
-from models.market_data import MarketData
+from models.market_data_adapter import MarketDataAdapter
 from models.trading_strategy import TradingStrategy
 app = Flask(__name__)
 
@@ -30,7 +30,7 @@ def configure_routes(app):
             if not symbol or not end_date:
                 return jsonify({'error': 'Symbol and end_date are required.'}), 400
 
-            market_data = MarketData(symbol, start_date, end_date)
+            market_data = MarketDataAdapter(symbol, start_date, end_date)
             data_df = market_data.fetch_data()
             market_data_json = data_df.to_dict(orient='records')
 
@@ -65,7 +65,7 @@ def configure_routes(app):
 
         try:
             # Fetch market data
-            market_data = MarketData(symbol, start_date, end_date)
+            market_data = MarketDataAdapter(symbol, start_date, end_date)
             data_df = market_data.fetch_data()
 
             # Run backtest
@@ -95,7 +95,7 @@ def configure_routes(app):
 
             # Create MarketData instance with today's date
             today = datetime.now().strftime('%Y-%m-%d')
-            market_data = MarketData(symbol, '2021-01-01', today)
+            market_data = MarketDataAdapter(symbol, '2021-01-01', today)
             
             # Fetch the data and get the last closing price
             data_df = market_data.fetch_data()

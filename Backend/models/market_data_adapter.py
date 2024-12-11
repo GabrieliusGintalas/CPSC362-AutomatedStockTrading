@@ -2,7 +2,7 @@ from data_access.data_access_service import DataAccessService
 from data_access.data_adaptees.yahoo_finance_adaptee import YahooFinanceAdaptee
 from data_access.decorators.validation_decorator import ValidationDecorator
 
-class MarketData:
+class MarketDataAdapter:
     def __init__(self, symbol, start_date, end_date):
         self.symbol = symbol
         self.start_date = start_date
