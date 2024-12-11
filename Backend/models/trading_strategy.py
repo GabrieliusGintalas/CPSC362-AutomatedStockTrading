@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import csv
-from models.algorithms import calculate_bollinger_bands, calculate_macd, calculate_sma_signals
+from models.strategy.trading_strategy_interface import SMAStrategy, BollingerBandsStrategy, MACDStrategy
 
 class TradingStrategy:
     INITIAL_BALANCE = 100000
@@ -22,16 +22,15 @@ class TradingStrategy:
         Calculate signals based on the selected algorithm.
         """
         if self.algorithm == 'SMA':
-            self.data = calculate_sma_signals(self.data)
-            self.data['signal'] = self.data['SMA_signal']
+            strategy = SMAStrategy()
         elif self.algorithm == 'BollingerBands':
-            self.data = calculate_bollinger_bands(self.data)
-            self.data['signal'] = self.data['BB_signal']
+            strategy = BollingerBandsStrategy()
         elif self.algorithm == 'MACD':
-            self.data = calculate_macd(self.data)
-            self.data['signal'] = self.data['MACD_signal']
+            strategy = MACDStrategy()
         else:
             raise ValueError("Invalid algorithm. Choose 'SMA', 'BollingerBands', or 'MACD'.")
+        
+        self.data = strategy.calculate_signals(self.data)
 
     def run_backtest(self):
         """
