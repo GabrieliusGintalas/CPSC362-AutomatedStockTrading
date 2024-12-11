@@ -4,7 +4,7 @@ import json
 import os
 from .data_source_interface import DataSourceInterface
 
-class YahooFinanceAdapter(DataSourceInterface):
+class YahooFinanceAdaptee(DataSourceInterface):
     def fetch_market_data(self, symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
         try:
             ticker = yf.Ticker(symbol)

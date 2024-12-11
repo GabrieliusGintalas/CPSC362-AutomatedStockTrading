@@ -1,5 +1,5 @@
 from data_access.data_access_service import DataAccessService
-from data_access.yahoo_finance_adapter import YahooFinanceAdapter
+from data_access.yahoo_finance_adaptee import YahooFinanceAdaptee
 from data_access.decorators.validation_decorator import ValidationDecorator
 
 class MarketData:
@@ -9,7 +9,7 @@ class MarketData:
         self.end_date = end_date
         
         # Create base data source with decorators
-        base_source = YahooFinanceAdapter()
+        base_source = YahooFinanceAdaptee()
         validated_source = ValidationDecorator(base_source)
         self.data_service = DataAccessService(validated_source)
 
