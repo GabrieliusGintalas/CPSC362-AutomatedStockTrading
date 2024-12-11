@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import numpy as np
 
-class TradingStrategyInterface(ABC):
+class TradingAlgo(ABC):
     @abstractmethod
     def calculate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
         """Calculate trading signals based on the strategy"""
@@ -13,7 +13,7 @@ class TradingStrategyInterface(ABC):
         """Get the name of the strategy"""
         pass 
 
-class SMAStrategy(TradingStrategyInterface):
+class SMAStrategy(TradingAlgo):
     def __init__(self, short_window=50, long_window=200):
         self.short_window = short_window
         self.long_window = long_window
@@ -32,7 +32,7 @@ class SMAStrategy(TradingStrategyInterface):
     def get_strategy_name(self) -> str:
         return "SMA"
 
-class BollingerBandsStrategy(TradingStrategyInterface):
+class BollingerBandsStrategy(TradingAlgo):
     def __init__(self, window=20, num_std_dev=2):
         self.window = window
         self.num_std_dev = num_std_dev
@@ -50,7 +50,7 @@ class BollingerBandsStrategy(TradingStrategyInterface):
     def get_strategy_name(self) -> str:
         return "BollingerBands"
 
-class MACDStrategy(TradingStrategyInterface):
+class MACDStrategy(TradingAlgo):
     def __init__(self, short_ema=12, long_ema=26, signal_line=9):
         self.short_ema = short_ema
         self.long_ema = long_ema
