@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import csv
-from models.strategy_pattern.tradingAlgos import SMAStrategy, BollingerBandsStrategy, MACDStrategy
+from data_access.models.strategy_pattern.tradingAlgos import SMAStrategy, BollingerBandsStrategy, MACDStrategy
 
 class TradingStrategy:
     INITIAL_BALANCE = 100000

@@ -1,8 +1,8 @@
 from datetime import datetime
 from flask import Flask, request, jsonify
 
-from models.market_data_adapter import MarketDataAdapter
-from models.trading_strategy import TradingStrategy
+from data_access.models.market_data_adapter import MarketDataAdapter
+from data_access.models.trading_strategy import TradingStrategy
 app = Flask(__name__)
 
 def configure_routes(app):
