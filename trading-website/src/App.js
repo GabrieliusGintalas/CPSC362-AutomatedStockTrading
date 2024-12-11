@@ -21,6 +21,12 @@ function App() {
   const [annualReturn, setAnnualReturn] = useState(0);
   const [totalReturn, setTotalReturn] = useState(0);
 
+  const TRADING_ALGORITHMS = [
+    { id: 'SMA', label: 'SMA' },
+    { id: 'BollingerBands', label: 'BB' },
+    { id: 'MACD', label: 'MACD' }
+  ];
+
   // Helper function to ensure valid input and proper date format
   const handleInputChange = (e, setter, maxLength) => {
     const value = e.target.value;
@@ -196,15 +202,15 @@ function App() {
 
       <p className="default-text">Please select a trading algorithm that you would like to use</p>
       <div className="button-container">
-        <button className="symbol-button" onClick={() => runBacktest('SMA')}>
-          SMA
-        </button>
-        <button className="symbol-button" onClick={() => runBacktest('BollingerBands')}>
-          BB
-        </button>
-        <button className="symbol-button" onClick={() => runBacktest('MACD')}>
-          MACD
-        </button>
+        {TRADING_ALGORITHMS.map(algo => (
+          <button
+            key={algo.id}
+            className="symbol-button"
+            onClick={() => runBacktest(algo.id)}
+          >
+            {algo.label}
+          </button>
+        ))}
       </div>
 
       <div>
