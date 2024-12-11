@@ -4,16 +4,6 @@ function LivePrice({ symbol }) {
   const [price, setPrice] = useState(null);
   const [isMarketHours, setIsMarketHours] = useState(false);
 
-  const checkMarketHours = () => {
-    const now = new Date();
-    const day = now.getDay();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const currentTime = hour * 100 + minute;
-
-    return day >= 1 && day <= 5 && currentTime >= 930 && currentTime <= 1600;
-  };
-
   const getLastClosingPrice = async () => {
     try {
       const response = await fetch('/get_last_closing_price', {
@@ -45,21 +35,10 @@ function LivePrice({ symbol }) {
     // Initial fetch of last closing price
     getLastClosingPrice();
 
-    // Set up interval for price simulation
-    const simulatePrice = () => {
-      const marketOpen = checkMarketHours();
-      setIsMarketHours(marketOpen);
-      
-      setPrice(prevPrice => {
-        if (prevPrice === null) return null;
-        const changePercent = (Math.random() - 0.5) * 0.002;
-        return prevPrice * (1 + changePercent);
-      });
-    };
-
-    const interval = setInterval(simulatePrice, 1000);
+    // Set up polling interval to get updated prices
+    const interval = setInterval(getLastClosingPrice, 1000);
     return () => clearInterval(interval);
-  }, [symbol]); // Include symbol in dependencies
+  }, [symbol]);
 
   const priceStyle = {
     backgroundColor: 'var(--LightGray)',
@@ -72,17 +51,11 @@ function LivePrice({ symbol }) {
     color: 'var(--Black)',
   };
 
-  const statusStyle = {
-    fontSize: '14px',
-    color: isMarketHours ? 'var(--Green)' : 'var(--Red)',
-    marginLeft: '10px',
-  };
-
   return (
     <div style={{ textAlign: 'center', margin: '20px 0' }}>
       <div style={priceStyle}>
         Current Price: ${price ? price.toFixed(2) : 'Loading...'}
-        <span style={statusStyle}>
+        <span style={{ fontSize: '14px', marginLeft: '10px' }}>
           (Simulated Price)
         </span>
       </div>

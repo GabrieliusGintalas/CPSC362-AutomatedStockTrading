@@ -14,4 +14,7 @@ class MarketDataDecorator(DataSourceInterface):
         self._data_source.save_data(data, filename)
 
     def load_data(self, filename: str) -> pd.DataFrame:
-        return self._data_source.load_data(filename) 
+        return self._data_source.load_data(filename)
+
+    def get_live_price(self, symbol: str) -> float:
+        return self._data_source.get_live_price(symbol) 

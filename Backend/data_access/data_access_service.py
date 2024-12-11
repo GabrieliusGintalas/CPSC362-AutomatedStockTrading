@@ -38,4 +38,10 @@ class DataAccessService:
         try:
             return self.data_source.load_data(filename)
         except FileNotFoundError:
-            return None 
+            return None
+
+    def get_live_price(self, symbol: str) -> float:
+        """
+        Get live price from data source
+        """
+        return self.data_source.get_live_price(symbol)

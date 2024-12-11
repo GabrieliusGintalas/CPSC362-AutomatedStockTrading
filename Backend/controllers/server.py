@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 
 from data_access.models.market_data_adapter import MarketDataAdapter
 from data_access.models.trading_strategy import TradingStrategy
+from data_access.price_subscriber import price_subscriber
 app = Flask(__name__)
 
 def configure_routes(app):
@@ -84,6 +85,10 @@ def configure_routes(app):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    def price_update_callback(symbol: str, price: float):
+        print(f"Price update for {symbol}: ${price:.2f}")
+        # Here you could emit the price via websocket if needed
+    
     @app.route('/get_last_closing_price', methods=['POST'])
     def get_last_closing_price():
         try:
@@ -93,18 +98,21 @@ def configure_routes(app):
             if not symbol:
                 return jsonify({'error': 'Symbol is required.'}), 400
 
-            # Create MarketData instance with today's date
-            today = datetime.now().strftime('%Y-%m-%d')
-            market_data = MarketDataAdapter(symbol, '2021-01-01', today)
+            from data_access.simulate_market_price import price_simulator
             
-            # Fetch the data and get the last closing price
-            data_df = market_data.fetch_data()
-            last_close = data_df['Close'].iloc[-1]
+            # Subscribe to price updates
+            price_subscriber.symbol = symbol
+            price_subscriber.subscribe(price_update_callback)
+            
+            # Get initial price
+            price = price_simulator.get_last_closing_price(symbol)
+            print(f"Initial price for {symbol}: ${price:.2f}")
 
             return jsonify({
                 'status': 'success',
-                'price': float(last_close)
+                'price': float(price)
             })
 
         except Exception as e:
+            print(f"Error in get_last_closing_price: {str(e)}")
             return jsonify({'error': str(e)}), 500
