@@ -1,5 +1,5 @@
 from data_access.data_access_service import DataAccessService
-from data_access.yahoo_finance_adaptee import YahooFinanceAdaptee
+from data_access.data_adaptees.yahoo_finance_adaptee import YahooFinanceAdaptee
 from data_access.decorators.validation_decorator import ValidationDecorator
 
 class MarketData:
