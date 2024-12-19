@@ -85,7 +85,7 @@ function App() {
     const fetchData = async () => {
       try {
         const endDate = `${year}-${month}-${day}`;
-        const response = await fetch('/fetch_market_data', {
+        const response = await fetch('http://localhost:5000/fetch_market_data', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -122,7 +122,7 @@ function App() {
   const runBacktest = async (algorithm) => {
     try {
       const endDate = `${year}-${month}-${day}`;
-      const response = await fetch('/run_backtest', {
+      const response = await fetch('http://localhost:5000/run_backtest', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -194,7 +194,7 @@ function App() {
           maxLength="4"
         />
       </p>
-      <LivePrice symbol={selectedSymbol} />
+      <LivePrice />
 
       <div>
         <StockChart marketData={marketData} selectedSymbol={selectedSymbol} tradeLog={tradeLog} />

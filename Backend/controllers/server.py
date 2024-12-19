@@ -1,24 +1,13 @@
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 
 from data_access.models.market_data_adapter import MarketDataAdapter
 from data_access.models.trading_strategy import TradingStrategy
 from data_access.price_subscriber import price_subscriber
-app = Flask(__name__)
 
 def configure_routes(app):
-    @app.after_request
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-        return response
-
-    @app.route('/fetch_market_data', methods=['POST', 'OPTIONS'])
+    @app.route('/fetch_market_data', methods=['POST'])
     def fetch_market_data():
-        if request.method == 'OPTIONS':
-            return jsonify({}), 200
-            
         try:
             data = request.get_json()
             if not data:
