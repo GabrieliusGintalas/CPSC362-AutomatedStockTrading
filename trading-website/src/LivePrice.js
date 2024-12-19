@@ -28,7 +28,7 @@ function LivePrice() {
     getLastClosingPrice();
 
     // Set up polling interval to get updated prices
-    const interval = setInterval(getLastClosingPrice, 10000);
+    const interval = setInterval(getLastClosingPrice, 2000);
     return () => clearInterval(interval);
   }, []);
 
